@@ -1,0 +1,53 @@
+clear;clc;clf
+
+% analytical solution
+syms T(xx)
+t=0:0.025:0.2;
+hold on
+for i=1:length(t)
+    T=sin(pi*xx)*exp(-pi^2*t(i));
+    fplot(xx,T,[0,1])
+end
+
+dx=0.05; %set spatial resolution
+dt=1e-3; %time step %if dt/(dx^2)=1/2,then dt=1.25e-3
+
+x_range=[0,1]; %spatial range
+t_range=[0,0.2]; %time range
+
+N_x=1+((x_range(2)-x_range(1))/dx); %number of grid points
+N_t=1+((t_range(2)-t_range(1))/dt); %number of time points
+
+%grid
+x=x_range(1):dx:x_range(2);
+t=t_range(1):dt:t_range(2);
+
+%initialize U
+U=zeros(N_t,N_x);
+
+%apply Initial Condition
+U(1,:)=sin(pi*x);
+
+%apply Boundary Condition
+U(:,1)=0;
+U(:,length(x))=0;
+
+%calculation loop
+for i=1:length(t)-1
+    for j=2:length(x)-1
+        U(i+1,j)=U(i,j)+dt*(U(i,j+1)+U(i,j-1)-2*U(i,j))/(dx^2);
+    end
+end
+
+%plot the numerical result
+t_point=0:0.025:0.2;
+t_plot=int64(t_point/dt+1);
+hold on
+for i=1:length(t_plot)
+    plot(x,U(t_plot(i),:));
+end
+
+legend('t=0_{exact}','t=0.025_{exact}','t=0.05_{exact}','t=0.075_{exact}','t=0.1_{exact}','t=0.125_{exact}','t=0.15_{exact}','t=0.175_{exact}',...
+'t=0.2_{exact}','t=0','t=0.025','t=0.05','t=0.075','t=0.1','t=0.125','t=0.15','t=0.175','t=0.2')
+xlabel('x^*')
+ylabel('T^*')
